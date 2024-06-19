@@ -47,15 +47,15 @@ public class Kopi {
 
         @Bean
         Queue emailQueue() {
-            return QueueBuilder.durable("polmanQueue").build();
+            return QueueBuilder.durable("BayuQueue").build();
         }
         @Bean
         DirectExchange rabbitExchange() {
-            return new DirectExchange("polmanExternalExchange");
+            return new DirectExchange("BayuExchanges");
         }
         @Bean
         Binding notifEmailBinding() {
-            return BindingBuilder.bind(emailQueue()).to(rabbitExchange()).with("polmanQueue");
+            return BindingBuilder.bind(emailQueue()).to(rabbitExchange()).with("BayuQueue");
         }
 
         @Bean
@@ -140,7 +140,7 @@ public class Kopi {
                 BumbuModel data = bumbuUsecase.save(bumbuModel);
                 return ResponseEntity.ok(data);
             }catch (Exception e){
-               throw new KpiNotFoundException("Data Not Found");
+                throw new KpiNotFoundException("Data Not Found");
             }
         }
 
@@ -155,7 +155,7 @@ public class Kopi {
         public void sendMessage(@RequestBody  String message)
         {
             rabbitTemplate.convertAndSend(
-                    "polmanExternalExchange", "polmanQueue", message);
+                    "BayuExchanges", "BayuQueue", message);
         }
 
     }
@@ -164,7 +164,7 @@ public class Kopi {
     @Component
     public static class RabbitMQConsumer {
 
-        @RabbitListener(queues = "polmanQueue")
+        @RabbitListener(queues = "BayuQueue")
         public void receiveMessage(String message)
         {
             System.out.println("Received message: " + message);
@@ -180,7 +180,7 @@ public class Kopi {
 
         @Scheduled(cron = "*/1 * * * * *") // Cron expression to run every second
         public void performTask() {
-            bumbuKopi.sendMessage("anda berhasil consume message");
+            bumbuKopi.sendMessage("Bayu berhasil consume message");
         }
     }
 
